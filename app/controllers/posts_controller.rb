@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :update, :destroy]
+  before_action :check_post_params, only: [:create, :update]
 
   def index
     @posts = Post.all
@@ -12,7 +13,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = Post.new(post_params)
+    @post = @current_user.posts.build(post_params)
 
     if @post.save
       render json: @post, status: :created, location: @post
@@ -21,21 +22,37 @@ class PostsController < ApplicationController
     end
   end
 
+  def check_post_params
+    if action_create?
+      param! :title, String, required: true
+      param! :title, String, blank: false, message: 'Title is blank'
+      param! :content, Text, required: true
+      param! :content, Text, blank: false, message: 'Content is blank'
+    end
+
+    param! :title, String, max_length: 100, message: 'Title should have no more than 100 characters'
+  end
+
   def update
     if @post.update(post_params)
-      render json: @post
+      render json: @post, status: :ok
     else
       render json: @post.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @post.destroy
+    if @post.destroy
+      head :no_content
+    else
+      render json: @post.errors, status: :unprocessable_entity
+    end
   end
 
   private
     def set_post
       @post = Post.find(params[:id])
+      render json: {"message": 'Post not found'}, status: 422 unless @post
     end
 
     def post_params

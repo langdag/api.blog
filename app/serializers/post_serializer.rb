@@ -21,5 +21,17 @@
 #  fk_rails_...  (category_id => categories.id)
 #
 class PostSerializer < ActiveModel::Serializer
-  attributes :id, :title, :content, :category_id, :author_id
+  attributes :id, :title, :content, :category, :author, :published_at
+
+  def category
+    object.category.as_json(only: %i[id name])
+  end
+
+  def author
+    object.author.as_json(only: %i[id name email])
+  end
+
+  def published_at
+    object.created_at.strftime("%B %d %Y, %l:%M%P")
+  end
 end

@@ -23,19 +23,24 @@ class CategoriesController < ApplicationController
 
   def update
     if @category.update(category_params)
-      render json: @category
+      render json: @category, status: :ok
     else
       render json: @category.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @category.destroy
+    if @category.destroy
+      head :no_content
+    else
+      render json: @category.errors, status: :unprocessable_entity
+    end
   end
 
   private
     def set_category
       @category = Category.find(params[:id])
+      render json: {"message": 'Category not found'}, status: 422 unless @category
     end
 
     def category_params
