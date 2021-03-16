@@ -3,9 +3,9 @@ class PostsController < ApplicationController
   before_action :check_post_params, only: [:create, :update]
 
   def index
-    @posts = Post.all
+    @posts = Post.all.order(created_at: :desc)
 
-    render json: @posts
+    render json: @posts, each_serializer: PostListSerializer
   end
 
   def show
@@ -23,14 +23,14 @@ class PostsController < ApplicationController
   end
 
   def check_post_params
+    param! :title, String, max_length: 100, message: 'Title should have no more than 100 characters'
+
     if action_create?
       param! :title, String, required: true
       param! :title, String, blank: false, message: 'Title is blank'
-      param! :content, Text, required: true
-      param! :content, Text, blank: false, message: 'Content is blank'
+      param! :content, String, required: true
+      param! :content, String, blank: false, message: 'Content is blank'
     end
-
-    param! :title, String, max_length: 100, message: 'Title should have no more than 100 characters'
   end
 
   def update

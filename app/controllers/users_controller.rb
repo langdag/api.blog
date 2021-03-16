@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   skip_before_action :authenticate, only: [:create]
-  before_action :set_user, only: [:show, :update, :destroy]
+  before_action :set_user, only: [:show, :update, :destroy, :post_list]
   before_action :check_user_params, only: [:create, :update]
 
   def index
@@ -52,9 +52,15 @@ class UsersController < ApplicationController
     end
   end
 
+  def post_list
+    @posts = @user.posts.order(created_at: :desc)
+
+    render json: @posts, each_serializer: PostListSerializer, status: :ok
+  end
+
   private
     def set_user
-      @user = User.find(params[:id])
+      @user = params[:id] ? User.find(params[:id]) : User.find(params[:user_id])
       render json: {"message": 'User not found'}, status: 422 unless @user
     end
 

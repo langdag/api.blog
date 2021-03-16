@@ -1,5 +1,5 @@
 class CategoriesController < ApplicationController
-  before_action :set_category, only: [:show, :update, :destroy]
+  before_action :set_category, only: [:show, :update, :destroy, :post_list]
 
   def index
     @categories = Category.all
@@ -37,9 +37,15 @@ class CategoriesController < ApplicationController
     end
   end
 
+  def post_list
+    @posts = @category.posts.order(created_at: :desc)
+
+    render json: @posts, each_serializer: PostListSerializer, status: :ok
+  end
+
   private
     def set_category
-      @category = Category.find(params[:id])
+      @category = params[:id] ? Category.find(params[:id]) : Category.find(params[:category_id])
       render json: {"message": 'Category not found'}, status: 422 unless @category
     end
 
