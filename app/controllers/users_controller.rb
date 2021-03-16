@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   skip_before_action :authenticate, only: [:create]
   before_action :set_user, only: [:show, :update, :destroy]
+  before_action :check_user_params, only: [:create, :update]
 
   def index
     @users = User.all
@@ -18,8 +19,21 @@ class UsersController < ApplicationController
     if @user.save
       render json: @user, status: :created, location: @user
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: {errors: @user.errors.full_messages}, status: :unprocessable_entity
     end
+  end
+
+  def check_user_params
+    param! :email, String, required: true if action_create?
+    param! :email, String, blank: false, message: 'Email is blank' if action_create?
+    param! :email, String, format: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i,
+                          message: 'Email must match format yourname@example.com'
+    if User.find_by_email(params[:email]) && action_create?
+      return render json: {"message": 'That email address is already taken. Try another one'}, status: :bad_request
+    end
+    param! :password, String, required: true if action_create?
+    param! :password, String, blank: false, message: 'Password is blank' if action_create?
+    param! :password, String, min_length: 8, message: 'Please enter a valid password that consists of a minimum of 6 characters'
   end
 
   def update
