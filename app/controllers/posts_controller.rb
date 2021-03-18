@@ -34,6 +34,7 @@ class PostsController < ApplicationController
   end
 
   def update
+    authorize! :update, @post
     if @post.update(post_params)
       render json: @post, status: :ok
     else
@@ -42,6 +43,7 @@ class PostsController < ApplicationController
   end
 
   def destroy
+    authorize! :destroy, @post
     if @post.destroy
       head :no_content
     else

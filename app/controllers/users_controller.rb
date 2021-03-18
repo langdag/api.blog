@@ -37,6 +37,7 @@ class UsersController < ApplicationController
   end
 
   def update
+    authorize! :update, @user
     if @user.update(user_params)
       render json: @user, status: :ok
     else
@@ -45,6 +46,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
+    authorize! :destroy, @user
     if @user.destroy
       head :no_content
     else

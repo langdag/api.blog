@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::API
+    rescue_from CanCan::AccessDenied, with: :forbidden
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
     rescue_from RailsParam::Param::InvalidParameterError, with: :render_error
     include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -6,6 +7,10 @@ class ApplicationController < ActionController::API
     before_action :authenticate
 
     private
+
+    def current_ability
+      @current_ability ||= Ability.new(@current_user)
+    end
 
     def action_create?
       action_name == 'create'
@@ -37,5 +42,9 @@ class ApplicationController < ActionController::API
 
     def not_found
       render_error('Not found', :not_found)
+    end
+
+    def forbidden
+      render_error('Access forbidden', :forbidden)
     end
 end
