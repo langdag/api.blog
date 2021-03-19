@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :posts
+  resources :posts do
+    resources :comments
+  end
   resources :categories do
     get 'posts', to: 'categories#post_list'
   end
