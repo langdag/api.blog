@@ -1,5 +1,5 @@
 class PostListSerializer < ActiveModel::Serializer
-    attributes :id, :title, :content, :category, :published_at
+    attributes :id, :title, :content, :category, :published_at, :comments_count
   
     def category
       object.category.as_json(only: %i[id name])
