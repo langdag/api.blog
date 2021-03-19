@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   skip_before_action :authenticate, only: [:create]
-  before_action :set_user, only: [:show, :update, :destroy, :post_list]
+  before_action :set_user, only: [:show, :update, :destroy, :author_posts]
   before_action :check_user_params, only: [:create, :update]
 
   def index
@@ -33,7 +33,7 @@ class UsersController < ApplicationController
     end
     param! :password, String, required: true if action_create?
     param! :password, String, blank: false, message: 'Password is blank' if action_create?
-    param! :password, String, min_length: 8, message: 'Please enter a valid password that consists of a minimum of 6 characters'
+    param! :password, String, min_length: 6, message: 'Please enter a valid password that consists of a minimum of 6 characters'
   end
 
   def update
@@ -54,7 +54,7 @@ class UsersController < ApplicationController
     end
   end
 
-  def post_list
+  def author_posts
     @posts = @user.posts.order(created_at: :desc)
 
     render json: @posts, each_serializer: PostListSerializer, status: :ok

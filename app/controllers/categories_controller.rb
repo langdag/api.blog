@@ -1,6 +1,6 @@
 class CategoriesController < ApplicationController
   load_and_authorize_resource
-  before_action :set_category, only: [:show, :update, :destroy, :post_list]
+  before_action :set_category, only: [:show, :update, :destroy, :category_posts]
 
   def index
     @categories = Category.all
@@ -38,7 +38,7 @@ class CategoriesController < ApplicationController
     end
   end
 
-  def post_list
+  def category_posts
     @posts = @category.posts.order(created_at: :desc)
 
     render json: @posts, each_serializer: PostListSerializer, status: :ok
